@@ -1,14 +1,74 @@
+'use strict';
+
 //controlling our state manually (though this could be done through libraries such as flux, redux or others)
 
 /** State of our friend list **/
-const friendState = {
+var friendState = {
   name: 'Cody',
-  friends: ['My', 'Myself', 'I', 'The gangs all here'], 
-}
+  friends: ['My', 'Myself', 'I', 'The gangs all here']
 
-/** State of our new friend input **/
-const newFriendState = {
+  /** State of our new friend input **/
+};var newFriendState = {
   newFriend: ''
+};
+
+//Function to render the ShowList class elements
+/**
+  Since this will be created by Friend Container elements,
+  it will have attributes passed in during creation 
+  (see renderFriendContainer for <ShowList names={this.state.friends} />).
+  Those attributes will become inherited values in this called this.props.
+  
+  For example our renderFriendContainer creates 
+  <ShowList names={this.state.friends} /> 
+  
+  which means in this ShowList object, we will have this.props.names
+  which is the values from this.state.friends of the FriendsContainer. 
+  this.props is the inherited variables as opposed to this.state
+  which is the variables that are part of this element. 
+  The this.props.names field is called names because the tag that made it
+  set the attribute to names
+  <ShowList names={this.state.friends} /> 
+  
+  It does not need to be called names. It can be called anything. 
+**/
+var renderList = function renderList() {
+  //For each name in the names inherited array (friends in FriendsContainer)
+  //we will put that name into an <li>. 
+  /**
+      .map is a build-in for-each loop for an array
+      but lets you selectively add/edit/remove
+      on the fly while building a new array
+      Like with adding friends, we are mapping to
+      a new array for immutability. That way we can
+      check differences and history quickly.
+  **/
+  var listItems = this.props.names.map(function (friend) {
+    return React.createElement(
+      'li',
+      null,
+      ' ',
+      friend,
+      ' '
+    );
+  });
+
+  //Render the structure for the ShowList class including the list items
+  //which will also have JSX in it for <li> tags.
+  return React.createElement(
+    'div',
+    null,
+    React.createElement(
+      'h3',
+      null,
+      ' Friends '
+    ),
+    React.createElement(
+      'ul',
+      null,
+      listItems
+    )
+  );
 };
 
 //Function to update the state of an AddFriend object. 
@@ -27,13 +87,10 @@ const newFriendState = {
   act the same as typical HTML elements 
   (since they have custom JS controlling their events)
 **/
-const updateNewFriend = (e) => {
+var updateNewFriend = function updateNewFriend(e) {
   newFriendState.newFriend = e.target.value;
-  
-  ReactDOM.render(
-    <FriendsContainer name={friendState.name} friends={friendState.friends} />,
-    document.getElementById('app')
-  );
+
+  ReactDOM.render(React.createElement(FriendsContainer, { name: friendState.name, friends: friendState.friends }), document.getElementById('app'));
 };
 
 //Function to add a new friend to our friends list 
@@ -78,15 +135,12 @@ const updateNewFriend = (e) => {
   Changes in the array can trigger events like re-rendering and such. 
   Immutability makes this process much faster and easier.
 **/
-const addNewFriend = function(e) {
+var addNewFriend = function addNewFriend(e) {
   friendState.friends = friendState.friends.concat([newFriendState.newFriend]);
 
   newFriendState.newFriend = '';
-  
-  ReactDOM.render(
-    <FriendsContainer name={friendState.name} friends={friendState.friends} />,
-    document.getElementById('app')
-  );
+
+  ReactDOM.render(React.createElement(FriendsContainer, { name: friendState.name, friends: friendState.friends }), document.getElementById('app'));
 };
 
 //Creating a new React component
@@ -120,16 +174,21 @@ const addNewFriend = function(e) {
   that is set equal to the Container's 
   addFriendToContainer function.
 **/
-const FriendsContainer = (props) => {
-  return (
-    <div>
-      <h3> Name: {props.name} </h3>
-      <AddFriend newFriend={newFriendState.newFriend} />
-      <ShowList names={props.friends} />
-    </div>
-  )
+var FriendsContainer = function FriendsContainer(props) {
+  return React.createElement(
+    'div',
+    null,
+    React.createElement(
+      'h3',
+      null,
+      ' Name: ',
+      props.name,
+      ' '
+    ),
+    React.createElement(AddFriend, { newFriend: newFriendState.newFriend }),
+    React.createElement(ShowList, { names: props.friends })
+  );
 };
-
 
 //Creating a new React Functional Stateless Component (FSC)
 /**
@@ -152,13 +211,17 @@ const FriendsContainer = (props) => {
   updateNewFriend is a custom function we made and attached
   to AddFriend objects that we can call to have certain events fire.
 **/
-const AddFriend = (props) => {
-  return (
-    <div>
-      <input type="text" value={props.newFriend} onChange={updateNewFriend} />
-      <button onClick={addNewFriend}> Add Friend </button>
-    </div>
-  ); 
+var AddFriend = function AddFriend(props) {
+  return React.createElement(
+    'div',
+    null,
+    React.createElement('input', { type: 'text', value: props.newFriend, onChange: updateNewFriend }),
+    React.createElement(
+      'button',
+      { onClick: addNewFriend },
+      ' Add Friend '
+    )
+  );
 };
 
 /**
@@ -195,20 +258,32 @@ AddFriend.propTypes = {
   
   Then we take our new array of li tags and drop it into our JSX
 **/
-const ShowList = function(props) {
+var ShowList = function ShowList(props) {
   //map is a build-in for-each loop for an array
   //but lets you selectively add/edit/remove
   //on the fly while building a new array
-  const listItems = props.names.map((friend) => {
-    return <li> {friend} </li>;
+  var listItems = props.names.map(function (friend) {
+    return React.createElement(
+      'li',
+      null,
+      ' ',
+      friend,
+      ' '
+    );
   });
-  return (
-    <div>
-      <h3> Friends </h3>
-      <ul>
-        {listItems}
-      </ul>
-    </div>
+  return React.createElement(
+    'div',
+    null,
+    React.createElement(
+      'h3',
+      null,
+      ' Friends '
+    ),
+    React.createElement(
+      'ul',
+      null,
+      listItems
+    )
   );
 };
 
@@ -232,11 +307,8 @@ const ShowList = function(props) {
   that has a variable called 'name' set to our friendState.name and
   a variable called friends set to our friendState.friends array.
 **/
-const init = () => {
-  ReactDOM.render(
-    <FriendsContainer name={friendState.name} friends={friendState.friends} />,
-    document.getElementById('app')
-  );
+var init = function init() {
+  ReactDOM.render(React.createElement(FriendsContainer, { name: friendState.name, friends: friendState.friends }), document.getElementById('app'));
 };
 
 window.onload = init;
